@@ -19,15 +19,14 @@
 #ifndef AVFILTER_VULKAN_SPIRV_H
 #define AVFILTER_VULKAN_SPIRV_H
 
-#include "libavutil/vulkan.h"
-
 #include "vulkan.h"
+
 #include "config.h"
 
 typedef struct FFVkSPIRVCompiler {
     void *priv;
-    int (*compile_shader)(struct FFVkSPIRVCompiler *ctx, void *avctx,
-                          struct FFVkSPIRVShader *shd, uint8_t **data,
+    int (*compile_shader)(FFVulkanContext *s, struct FFVkSPIRVCompiler *ctx,
+                          FFVulkanShader *shd, uint8_t **data,
                           size_t *size, const char *entrypoint, void **opaque);
     void (*free_shader)(struct FFVkSPIRVCompiler *ctx, void **opaque);
     void (*uninit)(struct FFVkSPIRVCompiler **ctx);
