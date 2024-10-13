@@ -256,10 +256,10 @@ static void device_features_copy_needed(VulkanDeviceFeatures *dst, VulkanDeviceF
     COPY_VAL(vulkan_1_2.storageBuffer8BitAccess);
     COPY_VAL(vulkan_1_2.uniformAndStorageBuffer8BitAccess);
     COPY_VAL(vulkan_1_2.shaderFloat16);
+    COPY_VAL(vulkan_1_2.shaderBufferInt64Atomics);
     COPY_VAL(vulkan_1_2.shaderSharedInt64Atomics);
     COPY_VAL(vulkan_1_2.vulkanMemoryModel);
     COPY_VAL(vulkan_1_2.vulkanMemoryModelDeviceScope);
-    COPY_VAL(vulkan_1_2.hostQueryReset);
 
     COPY_VAL(vulkan_1_3.dynamicRendering);
     COPY_VAL(vulkan_1_3.maintenance4);
@@ -321,6 +321,8 @@ static const struct FFVkFormatEntry {
     { VK_FORMAT_R8G8B8A8_UNORM,           AV_PIX_FMT_RGB0,    VK_IMAGE_ASPECT_COLOR_BIT, 1, 1, 1, { VK_FORMAT_R8G8B8A8_UNORM           } },
     { VK_FORMAT_A2R10G10B10_UNORM_PACK32, AV_PIX_FMT_X2RGB10, VK_IMAGE_ASPECT_COLOR_BIT, 1, 1, 1, { VK_FORMAT_A2R10G10B10_UNORM_PACK32 } },
     { VK_FORMAT_A2B10G10R10_UNORM_PACK32, AV_PIX_FMT_X2BGR10, VK_IMAGE_ASPECT_COLOR_BIT, 1, 1, 1, { VK_FORMAT_A2B10G10R10_UNORM_PACK32 } },
+    { VK_FORMAT_R32G32B32_SFLOAT,         AV_PIX_FMT_RGBF32,  VK_IMAGE_ASPECT_COLOR_BIT, 1, 1, 1, { VK_FORMAT_R32G32B32_SFLOAT         } },
+    { VK_FORMAT_R32G32B32A32_SFLOAT,      AV_PIX_FMT_RGBAF32, VK_IMAGE_ASPECT_COLOR_BIT, 1, 1, 1, { VK_FORMAT_R32G32B32A32_SFLOAT      } },
 
     /* Planar RGB */
     { VK_FORMAT_R8_UNORM,   AV_PIX_FMT_GBRAP,    VK_IMAGE_ASPECT_COLOR_BIT, 1, 4, 4, { VK_FORMAT_R8_UNORM,   VK_FORMAT_R8_UNORM,   VK_FORMAT_R8_UNORM,   VK_FORMAT_R8_UNORM   } },
@@ -1638,6 +1640,9 @@ static int vulkan_device_create_internal(AVHWDeviceContext *ctx,
         if (opt_d)
             p->disable_multiplane = strtol(opt_d->value, NULL, 10);
     }
+
+    /* Set the public device feature struct and its pNext chain */
+    hwctx->device_features = p->feats.device;
 
     /* Set the list of all active extensions */
     hwctx->enabled_dev_extensions = dev_info.ppEnabledExtensionNames;
