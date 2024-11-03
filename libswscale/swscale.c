@@ -194,8 +194,8 @@ static void chrRangeToJpeg16_c(int16_t *_dstU, int16_t *_dstV, int width)
     int32_t *dstU = (int32_t *) _dstU;
     int32_t *dstV = (int32_t *) _dstV;
     for (i = 0; i < width; i++) {
-        dstU[i] = (FFMIN(dstU[i], 30775 << 4) * 4663 - (9289992 << 4)) >> 12; // -264
-        dstV[i] = (FFMIN(dstV[i], 30775 << 4) * 4663 - (9289992 << 4)) >> 12; // -264
+        dstU[i] = ((int)(FFMIN(dstU[i], 30775 << 4) * 4663U - (9289992 << 4))) >> 12; // -264
+        dstV[i] = ((int)(FFMIN(dstV[i], 30775 << 4) * 4663U - (9289992 << 4))) >> 12; // -264
     }
 }
 
@@ -562,6 +562,16 @@ av_cold void ff_sws_init_range_convert(SwsInternal *c)
                 c->chrConvertRange = chrRangeToJpeg16_c;
             }
         }
+
+#if ARCH_AARCH64
+        ff_sws_init_range_convert_aarch64(c);
+#elif ARCH_LOONGARCH64
+        ff_sws_init_range_convert_loongarch(c);
+#elif ARCH_RISCV
+        ff_sws_init_range_convert_riscv(c);
+#elif ARCH_X86
+        ff_sws_init_range_convert_x86(c);
+#endif
     }
 }
 

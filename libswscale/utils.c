@@ -1095,16 +1095,8 @@ int sws_setColorspaceDetails(SwsContext *sws, const int inv_table[4],
     c->srcRange   = srcRange;
     c->dstRange   = dstRange;
 
-    if (need_reinit) {
+    if (need_reinit)
         ff_sws_init_range_convert(c);
-#if ARCH_AARCH64
-        ff_sws_init_range_convert_aarch64(c);
-#elif ARCH_LOONGARCH64
-        ff_sws_init_range_convert_loongarch(c);
-#elif ARCH_X86
-        ff_sws_init_range_convert_x86(c);
-#endif
-    }
 
     c->dstFormatBpp = av_get_bits_per_pixel(desc_dst);
     c->srcFormatBpp = av_get_bits_per_pixel(desc_src);
@@ -1525,7 +1517,9 @@ static av_cold int sws_init_single_context(SwsContext *sws, SwsFilter *srcFilter
         dstFormat != AV_PIX_FMT_BGR4_BYTE &&
         dstFormat != AV_PIX_FMT_RGB4_BYTE &&
         dstFormat != AV_PIX_FMT_BGR8 &&
-        dstFormat != AV_PIX_FMT_RGB8
+        dstFormat != AV_PIX_FMT_RGB8 &&
+        dstFormat != AV_PIX_FMT_X2RGB10LE &&
+        dstFormat != AV_PIX_FMT_X2BGR10LE
     ) {
         av_log(c, AV_LOG_WARNING,
                "full chroma interpolation for destination format '%s' not yet implemented\n",
