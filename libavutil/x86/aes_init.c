@@ -1,8 +1,5 @@
 /*
- * (I)DCT Transforms
- * Copyright (c) 2009 Peter Ross <pross@xvid.org>
- * Copyright (c) 2010 Alex Converse <alex.converse@gmail.com>
- * Copyright (c) 2010 Vitor Sessak
+ * Copyright (c) 2015 Rodger Combs <rodger.combs@gmail.com>
  *
  * This file is part of FFmpeg.
  *
@@ -18,20 +15,22 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVCODEC_DCT_H
-#define AVCODEC_DCT_H
-
 #include <stddef.h>
-#include <stdint.h>
+#include "libavutil/aes_internal.h"
+#include "libavutil/x86/cpu.h"
 
-void ff_j_rev_dct(int16_t data[64]);
-void ff_j_rev_dct4(int16_t data[64]);
-void ff_j_rev_dct2(int16_t data[64]);
-void ff_j_rev_dct1(int16_t data[64]);
-void ff_jref_idct_put(uint8_t *dest, ptrdiff_t line_size, int16_t block[64]);
-void ff_jref_idct_add(uint8_t *dest, ptrdiff_t line_size, int16_t block[64]);
+void ff_aes_decrypt_aesni(AVAES *a, uint8_t *dst, const uint8_t *src,
+                          int count, uint8_t *iv, int rounds);
+void ff_aes_encrypt_aesni(AVAES *a, uint8_t *dst, const uint8_t *src,
+                          int count, uint8_t *iv, int rounds);
 
-#endif /* AVCODEC_DCT_H */
+void ff_init_aes_x86(AVAES *a, int decrypt)
+{
+    int cpu_flags = av_get_cpu_flags();
+
+    if (EXTERNAL_AESNI(cpu_flags))
+        a->crypt = decrypt ? ff_aes_decrypt_aesni : ff_aes_encrypt_aesni;
+}
