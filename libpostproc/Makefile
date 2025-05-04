@@ -11,3 +11,7 @@ OBJS = postprocess.o           \
 
 # Windows resource file
 SHLIBOBJS-$(HAVE_GNU_WINDRES) += postprocres.o
+
+TESTPROGS = blocktest          \
+            stripetest         \
+            temptest	       \
