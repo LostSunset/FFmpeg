@@ -1,8 +1,4 @@
 /*
- * MPEG-4 encoder/decoder internal header.
- * Copyright (c) 2000,2001 Fabrice Bellard
- * Copyright (c) 2002-2010 Michael Niedermayer <michaelni@gmx.at>
- *
  * This file is part of FFmpeg.
  *
  * FFmpeg is free software; you can redistribute it and/or
@@ -20,21 +16,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVCODEC_MPEG4VIDEO_H
-#define AVCODEC_MPEG4VIDEO_H
+#ifndef AVCODEC_DECODE_BSF_H
+#define AVCODEC_DECODE_BSF_H
 
 #include <stdint.h>
 
-#include "mpegvideo.h"
-
-void ff_mpeg4_clean_buffers(MpegEncContext *s);
-int ff_mpeg4_get_video_packet_prefix_length(enum AVPictureType pict_type,
-                                            int f_code, int b_code);
-void ff_mpeg4_init_direct_mv(MpegEncContext *s);
+#include "avcodec.h"
+#include "bsf.h"
+#include "internal.h"
 
 /**
- * @return the mb_type
+ * Helper function for decoders that may use a BSF that changes extradata.
+ * This function will get the extradata from the BSF.
  */
-int ff_mpeg4_set_direct_mv(MpegEncContext *s, int mx, int my);
+static inline void ff_decode_get_extradata(const AVCodecContext *avctx,
+                                           const uint8_t **extradata,
+                                           int *extradata_size)
+{
+    // Given that we unconditionally insert a null BSF when no BSF is
+    // explicitly requested, we can just use the BSF's par_out here.
+    *extradata      = avctx->internal->bsf->par_out->extradata;
+    *extradata_size = avctx->internal->bsf->par_out->extradata_size;
+}
 
-#endif /* AVCODEC_MPEG4VIDEO_H */
+#endif /* AVCODEC_DECODE_BSF_H */
